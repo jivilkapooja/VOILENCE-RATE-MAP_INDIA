@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map with Colored Markers</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        h2 { color: #333; }
+        #map { height: 600px; width: 80%; margin: 20px auto; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<h2>Welcome, <span id="userWelcome"></span></h2>
+<h3>Here’s the map with reported cases:</h3>
+<div id="map"></div>
+
+<script>
+// Display user name from localStorage
+document.getElementById('userWelcome').innerText = localStorage.getItem('username') || 'Guest';
+
+// Initialize map
+var map = L.map('map').setView([38.690003, -100.809859], 5);
+
+L.tileLayer('https://api.maptiler.com/maps/bright-v2/{z}/{x}/{y}.png?key=161AHnidEpIpGi4Jx7SV', {
+    attribution: '&copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>'
+}).addTo(map);
+
+// Fetch marker data
+fetch('http://localhost:3005/womens_data')
+    .then(response => response.json())
+    .then(data => {
+        data.forEach(markerData => {
+            L.circleMarker([markerData.Latitude, markerData.Longitude], {
+                color: markerData.color,
+                radius: 10
+            }).addTo(map)
+              .bindPopup(`<b>Violence Rate</b><br>Location: (${markerData.Latitude}, ${markerData.Longitude})<br>DD: ${markerData.DD}`);
+        });
+    })
+    .catch(error => console.log('Error fetching marker data:', error));
+</script>
+
+</body>
+</html>
+
